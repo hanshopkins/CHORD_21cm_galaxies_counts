@@ -1,0 +1,67 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{biblatex}
+
+\newcommand{\val}[3]{#1 \times 10^{#2} \ \text{#3}}
+\newcommand{\valdless}[2]{#1 \times 10^{#2}}
+
+\bibliography{references}
+
+\begin{document}
+\begin{center}
+    \textbf{21cm Counts Prediciton Explanation}
+\end{center}
+
+The goal of this code is to estimate the number density of HI objects using the Alfalfa Schechter function.
+
+The Schechter luminosity function is:
+\begin{equation*}
+    dn(L) = \phi~ dL = \phi^* \left(\frac{L}{L^*}\right)^\alpha \mathrm{e}^{-L/L^*} d\left(\frac{L}{L^*}\right)
+\end{equation*}
+
+From this Alfalfa paper \cite{2018_HIMF}, a good fit was $\alpha = -1.25$, $\phi^* = \val{4.5}{-3}{Mpc$^{-3}$}$, $\log(M_*/M_\odot) = 9.94 \implies M_* = 10^{9.94} M_\odot$. The standard formula to relate the HI mass and flux density (not accounting for HI self-absorption) is
+\begin{align*}
+    \frac{M_{21}}{M_{\odot}} = \valdless{2.356}{5} D^2_{MPc} S_{21} \Delta V \ \text{(Jy km/s MPc$^2$)}^{-1}
+\end{align*}
+
+And the definition of spectral luminosity is
+\begin{align*}
+    L_\nu = 4\pi d^2 S_\nu
+\end{align*}
+
+Combining these equations gives
+\begin{align*}
+    L_{21} &= 4\pi \frac{M_{HI}}{(\val{2.356}{5}{$M_{\odot}$})(\Delta V)} \ \text{Jy km/s MPc$^2$}
+\end{align*}
+
+$\Delta V$ is the bandwidth of Alfalfa in Km/s. The bandwidth in Hz is 2.4414$\times 10^4$. They can be converted with $\Delta V = \frac{c^2}{\lambda_0 \Delta \nu}$ to give 58.514 km/s
+
+Plugging in $M_*$ from the Alfalfa paper gives $L^* = \val{7.939}{3}{Jy MPc$^2$}$.
+
+Integrating over luminosity will give us the number density of galaxies. The luminosity integral needs to start at some cutoff $L_{cut}(z)$ which corresponds to the luminosity of a galaxy that we can no longer detect at that redshift. To find this cutoff, we need the CHORD's SEFD.
+
+``SEFD is the system equivalent flux density (Jy), defined as the flux density of a radio source that doubles the system temperature. Lower values of the SEFD indicate more sensitive performance." -from \cite{NRAOlectures} (ch 3.7.6 Sensitivity). It has units of Janskys. It is related to the thermal noise via:
+\begin{equation*}
+    \Delta I_m = \frac{SEFD}{\eta_c\sqrt{n_{pol} t_{int} \Delta \nu}}
+\end{equation*}
+
+Where $n_{pol}$ is 2, $\eta_c$ is the correlator efficiency assumed to be 1, $t_{int}$ is the total integration time over a spot, and $\Delta \nu$ is the bandwidth. This paper \cite{mackay2023lowcost} puts CHORD's SEFD at 12 Jy with the fomula
+\begin{align*}
+    \text{SEFD} = \frac{2k T_{sys}}{\eta_A N A_{phys}}
+\end{align*}
+
+Where $T_{sys}$ for CHORD is 30K, $\eta_A$ is the aperture efficiency $\approx 0.5$, $N$ is the number of dishes (512 and 64 for full CHORD and Pathfinder), and $A_phys$ is the physical area of the dishes (disks with 6m diameter).
+
+We'll define the luminosity cutoff $L_{cut}$ to be the luminosity such that $F/n_\sigma < \Delta I_m$, where $n_\sigma$ is the minimum number of sigmas that you want for a detection. In terms of luminosity, this is
+\begin{align*}
+    L_{cut} = F_{cut} (4\pi D^2) = \frac{n_\sigma(SEFD)}{\sqrt{n_{pol} t_{int} \Delta \nu}}(4\pi D^2)
+\end{align*}
+
+Where $D$ is the comoving distance. The goal is to find the number of detections for a redshift bin at redshift $z$ with width $dz$. In the thin bin approximation, its number of galaxies is $n (\rm{Vol}(z)-\rm{Vol}(z-dz))$. This is the number of galaxies that we're expecting in 4$\pi$ steradians, so we multiply by the fraction of the sky that we're expecting to cover.
+
+\newpage
+
+\printbibliography
+
+\end{document}
